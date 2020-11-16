@@ -1,0 +1,29 @@
+interface Todo {
+    title: string;
+    description: string;
+    completed: boolean;
+};
+
+type a = 1 | 2;
+type b = 2;
+
+type MyExclude<T, S> = T extends S ? never : T;
+
+type hoge = MyExclude<keyof Todo, 'description'>;
+// 除外されて残ったkeyの型がもらえる 'title' | 'completed'
+
+// type MyOmit<T, S> = T extends S ? never : { [P in keyof T]: T[P] };
+// type MyOmit<T, S> = { [P in keyof T]: P extends S ? never : T[P] };
+// type MyOmit<T, S> = { [P in keyof MyExclude<keyof T, S>]: MyExclude<keyof T, S>[P] };
+
+// [P in MyExclude<keyof T, S>] => 除外されて残った分の型でキーを作る
+// ...: T[P] => MyExclude<keyof T, S>とTは違うからダメなんじゃと思ったけど
+//              MyExcludeした中身を推論してTのサブセットを確かめている
+// あとは返すだけ
+type MyOmit<T, S> = { [P in MyExclude<keyof T, S>]: T[P] };
+
+type TodoPreview = MyOmit<Todo, 'description' | 'title'>;
+
+const todo: TodoPreview = {
+    completed: false,
+};
